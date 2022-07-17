@@ -7,6 +7,7 @@ using api.Models.Notifications.Requests;
 using api.Models.Notifications.Responses;
 using api.Services.CoreFunctions;
 using PhoneNumbers;
+using static api.Models.Notifications.ErrorMessages;
 
 namespace api.Services.Auth.impl
 {
@@ -18,11 +19,7 @@ namespace api.Services.Auth.impl
             "localhost:44391"
         });
 
-        private static string nullRequest => "Request was null";
-        private static string validPhoneNUmber => "Not a valid UK phone number";
-        private static string emptyContent => "Empty sms content";
-
-
+        
         public bool IsValidAccessToken(string token)
         {
             var tokenToValidate = token.GuidTryParse();
@@ -39,17 +36,17 @@ namespace api.Services.Auth.impl
 
             if (request == null)
             {
-                errorList.Add(nullRequest);
+                errorList.Add(Null_Request);
             }
 
             if (!IsValidUKMobileNumber(request?.SMSRecipient))
             {
-                errorList.Add(validPhoneNUmber);
+                errorList.Add(Phone_Validation_Error);
             }
 
             if (EmptyContent(request?.Content))
             {
-                errorList.Add(emptyContent);
+                errorList.Add(Empty_Content);
             }
 
             return new ValidationResponse(){Errors = errorList, IsValid = errorList.Count == 0};

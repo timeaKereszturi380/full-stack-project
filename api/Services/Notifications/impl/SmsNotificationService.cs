@@ -72,10 +72,21 @@ namespace api.Services.Notifications.impl
         {
             var errorMessages = new List<string>();
             var smsList = new List<SmsItem>();
+            var now = DateTime.UtcNow;
 
             if (historyRequest.PageSize == 0)
             {
                 historyRequest.PageSize = 20;
+            }
+
+            if (historyRequest.FromDateUtc == DateTime.MinValue)
+            {
+                historyRequest.FromDateUtc = now;
+            }
+
+            if (historyRequest.ToDateUtc == DateTime.MinValue)
+            {
+                historyRequest.ToDateUtc = now;
             }
 
             try
