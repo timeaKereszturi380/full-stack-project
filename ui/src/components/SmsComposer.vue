@@ -3,13 +3,17 @@
     <v-layout row wrap>
       <v-flex xs12>
           <v-form v-model="valid" @submit.prevent="submit">
-              <v-text-field label="Mobile Number"></v-text-field>
-              <v-textarea label="Sms Content"></v-textarea>
+              <v-select v-model="select"
+                        :items="items"
+                        label="Send To"
+                        required></v-select>
+
+              <v-textarea v-model="content" required label="Sms Content"></v-textarea>
 
               <v-btn class="mr-4"
-                  
+                     
                      @click="submit"
-                     :disabled="invalid">
+                     :disabled="!valid || sending">
                   Send SMS
               </v-btn>
 
@@ -23,19 +27,24 @@
 <script>
 
     import axios from 'axios'
-    import cors from 'cors'
-
+ 
     export default {
         name: 'SmsComposer',
         data: () => ({
-            valid: true
+            valid: true,
+            select: null,
+            sending: false,
+            items: [
+                'Admin Team',
+                'Support Team'
+            ]
         }),
 
         methods: {
 
             submit() {
-
-                let data = { SMSRecipient: "string", SMSFrom: "string", Content: "some text message" };
+                this.sending = true;
+                let data = { SMSRecipient: "string", SMSFrom: "string", Content: this.content };
                 let token = "ff44db7e-5088-4a1f-8c2c-1b75edea62e6";
                 var config = {
                     method: 'post',
@@ -50,9 +59,13 @@
                 axios(config)
                     .then(function (response) {
                         console.log(JSON.stringify(response.data));
+                        this.sending = false;
+                        this.content.clear();
                     })
                     .catch(function (error) {
                         console.log(error);
+                        this.sending = false;
+                        this.content.clear();
                     });
             }
         }

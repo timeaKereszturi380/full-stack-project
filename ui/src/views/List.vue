@@ -1,14 +1,42 @@
-<template>
+<!--<template>
   <div class="sms-list">
     <h1>This is the sms list page</h1>
   </div>
-</template>
+</template>-->
 
+<template>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date Sent</th>
+            </tr>
+
+            <tr>
+                <th>Content</th>
+            </tr>
+
+        </thead>
+        <tbody>
+            <tr v-for="sms in items">
+                <th>{{ sms.date }}</th>
+                <!--<td>{{ sms.content }}</td>-->
+            </tr>
+        </tbody>
+
+    </table>
+    
+
+</template>
 
 <script>
     var axios = require('axios');
     export default {
-       
+
+        props: {
+            items: []
+        },
+
         methods: {
 
             
@@ -25,6 +53,15 @@
                 axios(config)
                     .then(function (response) {
                         console.log(JSON.stringify(response.data));
+                        var items = []
+                        
+                        const json = JSON.stringify(response);
+                        //Object.entries(json).forEach(([key, value]) => {
+                        //    console.log(`${key}: ${value}`);
+                        //});
+                        this.items = items
+
+                        console.log(JSON.stringify(data.items));
                     })
                     .catch(function (error) {
                         console.log(error);
@@ -33,7 +70,11 @@
             }
 
          
-        }
+        },
+
+        beforeMount() {
+            this.fetch();
+        },
 
     }
 

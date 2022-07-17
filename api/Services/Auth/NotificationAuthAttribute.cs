@@ -34,25 +34,25 @@ namespace api.Services.Auth
                 }
                 else
                 {
-                    context.HttpContext.Request.Headers.TryGetValue("sms-api-key", out var authTokens);
-                    var authToken = authTokens.FirstOrDefault();
-
-                    var test = _validationService.IsValidHost(context.HttpContext.Request.Host.ToString());
+                    var authToken = context.HttpContext.GetAuthToken();
 
                     if (_validationService.IsValidHost(context.HttpContext.Request.Host.ToString()) 
                         && _validationService.IsValidAccessToken(authToken))
                     {
-                        context.HttpContext.Response.Headers.Add("authToken", authToken);
-                        context.HttpContext.Response.Headers.Add("AuthStatus", "Authorized");
-                        context.HttpContext.Response.Headers.Add("storeAccessiblity", "Authorized");
+                        context.HttpContext
+                            .AddToken(authToken)
+                            .AddStatus("Authorized")
+                            .AddAccessibility("Authorized");
                     }
                     else
                     {
-                        context.HttpContext.Response.Headers.Add("authToken", authToken);
-                        context.HttpContext.Response.Headers.Add("AuthStatus", "NotAuthorized");
 
-                        context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        context.HttpContext.Response.HttpContext.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Not Authorized";
+                        context.HttpContext
+                            .AddToken(authToken)
+                            .AddStatus("NotAuthorized")
+                            .AddStatusCode(HttpStatusCode.Forbidden)
+                            .AddReasonPhrase("Not Authorized");
+
                         context.Result = new JsonResult("NotAuthorized")
                         {
                             

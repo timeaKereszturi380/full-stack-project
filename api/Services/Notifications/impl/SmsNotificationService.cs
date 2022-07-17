@@ -73,11 +73,17 @@ namespace api.Services.Notifications.impl
             var errorMessages = new List<string>();
             var smsList = new List<SmsItem>();
 
+            if (historyRequest.PageSize == 0)
+            {
+                historyRequest.PageSize = 20;
+            }
+
             try
             {
-                var messages = await MessageResource.ReadAsync(limit: 20, dateSent: historyRequest.FromDateUtc, dateSentBefore: historyRequest.ToDateUtc);
+                var messages = await MessageResource
+                    .ReadAsync(limit: historyRequest.PageSize, dateSent: historyRequest.FromDateUtc, dateSentBefore: historyRequest.ToDateUtc);
                 
-                if (messages != null)
+                if (messages != null && messages.Any())
                 {
                     smsList.AddRange(messages
                         .Select(m => new SmsItem() 
