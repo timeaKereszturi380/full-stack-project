@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using api.Models.Notifications.Enums;
 using api.Models.Notifications.Responses;
+using api.Models.Paging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Filters;

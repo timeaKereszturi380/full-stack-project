@@ -1,44 +1,57 @@
-<!--<template>
-  <div class="sms-list">
-    <h1>This is the sms list page</h1>
-  </div>
-</template>-->
+
 
 <template>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Date Sent</th>
-            </tr>
-
-            <tr>
-                <th>Content</th>
-            </tr>
-
-        </thead>
-        <tbody>
-            <tr v-for="sms in items">
-                <th>{{ sms.date }}</th>
-                <!--<td>{{ sms.content }}</td>-->
-            </tr>
-        </tbody>
-
-    </table>
-    
-
+   
+    <v-simple-table dark>
+        <template v-slot:default>
+            <thead>
+                <tr>
+                    <th class="text-left">
+                        Date
+                    </th>
+                    <th class="text-left">
+                        Content
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="sms in smsItems"
+                    :key="sms.id">
+                    <td>{{ sms.date }}</td>
+                    <td>{{ sms.content }}</td>
+                </tr>
+            </tbody>
+        </template>
+    </v-simple-table>
 </template>
+
 
 <script>
     var axios = require('axios');
+    const self = this;
     export default {
 
-        props: {
-            items: []
-        },
+        data: () => ({
 
+            picker: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+            smsItems: [],
+            headers: [
+                {
+                    text: 'Date',
+                    align: 'start',
+                    sortable: false,
+                    value: 'date',
+                },
+                { text: 'Content', sortable: false, value: 'content' }
+            ],
+        }),
+
+ 
+       
         methods: {
 
+            
             
             fetch() {
 
@@ -51,17 +64,23 @@
                 };
 
                 axios(config)
-                    .then(function (response) {
-                        console.log(JSON.stringify(response.data));
+                    .then(response => {
+                        var json = JSON.stringify(response.data);
                         var items = []
-                        
-                        const json = JSON.stringify(response);
-                        //Object.entries(json).forEach(([key, value]) => {
-                        //    console.log(`${key}: ${value}`);
-                        //});
-                        this.items = items
 
-                        console.log(JSON.stringify(data.items));
+                        let jsonObj = JSON.parse(json);
+
+                        //console.log(jsonObj);
+
+                        for (var i = 0; i < jsonObj.items.length; i++) {
+                            let sms = jsonObj.items[i];
+                            let derived = { "id": sms.id,"date": sms.sentDateUtc, "content": sms.content }
+                            items.push(derived);
+                        }
+
+                        this.smsItems = items;
+
+                        console.log(this.smsItems);
                     })
                     .catch(function (error) {
                         console.log(error);
@@ -72,8 +91,11 @@
          
         },
 
+    
+
         beforeMount() {
             this.fetch();
+           
         },
 
     }

@@ -45,7 +45,7 @@ namespace api.tests.Controllers
 
         private NotificationActionResult GetMockNotificationSuccessObject()
         {
-            return ActionResult(true, null);
+            return ActionResult(true, new List<string>());
         }
 
         private NotificationActionResult GetMockNotificationFailedObject()
@@ -111,7 +111,7 @@ namespace api.tests.Controllers
                 viewResult.Value);
 
             Assert.True(model.Success);
-            Assert.Null(model.ErrorMessages);
+            Assert.Empty(model.ErrorMessages);
         }
 
         [Fact]

@@ -6,6 +6,7 @@ using api.Models.Notifications.Enums;
 using api.Models.Notifications.Requests;
 using api.Models.Notifications.Responses;
 using api.Models.Notifications.Sms;
+using api.Models.Paging;
 using api.Services.Auth;
 using api.Services.CoreFunctions;
 using Microsoft.Extensions.Options;
@@ -38,7 +39,7 @@ namespace api.Services.Notifications.impl
             {
                 var isSent = await SendAsync(smsRequest);
 
-                return ActionResult(isSent, null);
+                return ActionResult(isSent, new List<string>());
             }
 
             return ActionResult(false, validationResponse.Errors);
@@ -61,7 +62,7 @@ namespace api.Services.Notifications.impl
                
                 return HasMessageBeenSent(message?.Status?.ToString());
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
                 return false;
             }
@@ -72,21 +73,15 @@ namespace api.Services.Notifications.impl
         {
             var errorMessages = new List<string>();
             var smsList = new List<SmsItem>();
-            var now = DateTime.UtcNow;
 
             if (historyRequest.PageSize == 0)
             {
                 historyRequest.PageSize = 20;
             }
 
-            if (historyRequest.FromDateUtc == DateTime.MinValue)
-            {
-                historyRequest.FromDateUtc = now;
-            }
-
             if (historyRequest.ToDateUtc == DateTime.MinValue)
             {
-                historyRequest.ToDateUtc = now;
+                historyRequest.ToDateUtc = DateTime.MaxValue;
             }
 
             try
@@ -98,14 +93,15 @@ namespace api.Services.Notifications.impl
                 {
                     smsList.AddRange(messages
                         .Select(m => new SmsItem() 
-                            { Content = m.Body, Recipient = m.To, SentDateUtc = m.DateSent }));
+                            { Id = Guid.NewGuid(), Content = m.Body, Recipient = m.To, SentDateUtc = m.DateSent }));
+
+                    return ActionResults(smsList, true, new List<string>());
                 }
 
-                return ActionResults(smsList, true, new List<string>());
+                
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 errorMessages.Add(e.Message);
             }
 
